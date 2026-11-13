@@ -29,8 +29,8 @@ def from_alpaca(ticker: str, years: int = 3) -> pd.DataFrame:
     import requests
 
     headers = {
-        "APCA-API-KEY-ID": os.environ["ALPACA_API_KEY"],
-        "APCA-API-SECRET-KEY": os.environ["ALPACA_SECRET_KEY"],
+        "APCA-API-KEY-ID": os.getenv("ALPACA_API_KEY", "proxy-injected"),
+        "APCA-API-SECRET-KEY": os.getenv("ALPACA_SECRET_KEY", "proxy-injected"),
     }
     start = (datetime.now(timezone.utc) - timedelta(days=365 * years)).strftime("%Y-%m-%d")
     url = f"https://data.alpaca.markets/v2/stocks/{ticker}/bars"
@@ -58,4 +58,9 @@ def from_alpaca(ticker: str, years: int = 3) -> pd.DataFrame:
 def load(ticker: str, years: int = 3, source: str = "auto") -> pd.DataFrame:
     if source == "alpaca" or (source == "auto" and os.getenv("ALPACA_API_KEY")):
         return from_alpaca(ticker, years)
-    return from_yfinance(ticker, years)
+    if source == "yfinance":
+        return from_yfinance(ticker, years)
+    try:
+        return from_yfinance(ticker, years)
+    except Exception:  # noqa: BLE001 - Yahoo bloklananda Alpaca-ya keç
+        return from_alpaca(ticker, years)

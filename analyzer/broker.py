@@ -18,8 +18,8 @@ class Alpaca:
         self.live = os.getenv("ALPACA_LIVE") == "1"
         self.base = LIVE if self.live else PAPER
         self.h = {
-            "APCA-API-KEY-ID": os.environ["ALPACA_API_KEY"],
-            "APCA-API-SECRET-KEY": os.environ["ALPACA_SECRET_KEY"],
+            "APCA-API-KEY-ID": os.getenv("ALPACA_API_KEY", "proxy-injected"),
+            "APCA-API-SECRET-KEY": os.getenv("ALPACA_SECRET_KEY", "proxy-injected"),
         }
 
     def _get(self, path: str):
